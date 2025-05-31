@@ -1,8 +1,12 @@
-# Node modules (backend and frontend)
+# Node modules
 **/node_modules/
 
-# Production builds (frontend)
+# Environment variables
+**/.env
+
+# Build output
 **/dist/
+**/build/
 
 # Logs
 *.log
@@ -10,39 +14,27 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
-**/.env
-
-# OS-specific files
+# OS files
 .DS_Store
 Thumbs.db
 
-# IDE-specific folders
+# IDE files
 .vscode/
 .idea/
 
 # TypeScript cache
 *.tsbuildinfo
 
-# Coverage reports
+# Temporary files
+*.swp
+*.tmp
+*.temp
+
+# Coverage
 coverage/
 
-# Mac .DS_Store files
-.DS_Store
-
-# Windows thumbnail cache
-ehthumbs.db
-
-# VS Code workspace storage
-.vscode/
-
-# Parcel cache (if applicable)
-.cache/
-
-# Next.js (if ever used)
-.next/
-
-# Optional: Ignore test outputs or mock data
-*.test.ts
-*.test.js
-__tests__/
+# MongoDB settings
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
