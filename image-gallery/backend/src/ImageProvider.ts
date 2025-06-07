@@ -1,6 +1,8 @@
-import { MongoClient, Collection, ObjectId, UpdateFilter } from "mongodb";
+import { MongoClient, Collection, UpdateFilter } from "mongodb";
+import { ObjectId } from "mongodb";
 
 interface IUser {
+  _id: string;
   username: string;
 }
 
@@ -11,10 +13,12 @@ interface IImageDocument {
   authorId: string;
 }
 
-interface IApiImageData {
-  title: string;
-  url: string;
+export interface IApiImageData {
+  id: string;
+  name: string;
+  src: string;
   author: {
+    id: string;
     username: string;
   };
 }
@@ -34,33 +38,48 @@ export class ImageProvider {
     this.usersCollection = db.collection<IUser>(userColl);
   }
 
-  async getImages(filters: { author?: string }): Promise<IApiImageData[]> {
-    const query: Partial<IImageDocument> = {};
+  async getImages(filters: { name?: string; author?: string }): Promise<IApiImageData[]> {
+    const query: any = {};
+
+    if (filters.name) {
+      query.name = { $regex: filters.name, $options: "i" };
+    }
+
     if (filters.author) {
       query.authorId = filters.author;
     }
 
     const images = await this.imagesCollection.find(query).toArray();
 
-    const authorUsernames = [...new Set(images.map((img) => img.authorId))];
+    const authorIds = [...new Set(images.map((img) => img.authorId))];
     const users = await this.usersCollection
-      .find({ username: { $in: authorUsernames } })
+      .find({ _id: { $in: authorIds } })
       .toArray();
 
-    const userMap = new Map(users.map((u) => [u.username, u]));
+    const userMap = new Map(users.map((u) => [u._id, u]));
 
-    return images.map((img) => ({
-      title: img.name,
-      url: img.src,
-      author: {
-        username: userMap.get(img.authorId)?.username ?? "unknown"
-      }
-    }));
+    return images.map((img) => {
+      const user = userMap.get(img.authorId);
+      return {
+        id: img._id.toString(),
+        name: img.name,
+        src: img.src,
+        author: {
+          id: user?._id ?? "unknown",
+          username: user?.username ?? "unknown",
+        },
+      };
+    });
   }
 
   async updateImage(id: string, update: Partial<IImageDocument>) {
     const filter = { _id: new ObjectId(id) };
     const mongoUpdate: UpdateFilter<IImageDocument> = { $set: update };
     return this.imagesCollection.updateOne(filter, mongoUpdate);
+  }
+
+  async createImage(image: Omit<IImageDocument, "_id">) {
+return this.imagesCollection.insertOne(image as unknown as IImageDocument);
+
   }
 }

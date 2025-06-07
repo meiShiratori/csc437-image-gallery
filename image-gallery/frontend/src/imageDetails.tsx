@@ -20,7 +20,7 @@ export function ImageDetails({ images, loading, error, onNameChanged }: Props) {
   return (
     <div className="ImageDetails">
       <h2>{image.name}</h2>
-      <p>By {image.author.username}</p>
+      <p>By {image.author?.username ?? "unknown"}</p>
       <ImageNameEditor
         initialValue={image.name}
         imageId={image.id}
@@ -30,3 +30,4 @@ export function ImageDetails({ images, loading, error, onNameChanged }: Props) {
     </div>
   );
 }
+

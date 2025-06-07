@@ -1,16 +1,16 @@
 import { useParams } from "react-router-dom";
-import { IApiImageData } from "../../../shared/ApiImageData";
-
-
-import "./Images.css";
+import type { IApiImageData } from "../../../shared/ApiImageData";
+import { ImageNameEditor } from "../ImageNameEditor";
+import "./images/Images.css";
 
 interface Props {
   images: IApiImageData[];
   loading: boolean;
   error: boolean;
+  onNameChanged: (id: string, newName: string) => void;
 }
 
-export function ImageDetails({ images, loading, error }: Props) {
+export function ImageDetails({ images, loading, error, onNameChanged }: Props) {
   const { id } = useParams();
   const image = images.find((img) => img.id === id);
 
@@ -20,8 +20,14 @@ export function ImageDetails({ images, loading, error }: Props) {
   return (
     <div className="ImageDetails">
       <h2>{image.name}</h2>
-      <p>By {image.author.username}</p>
+      <p>By {image.author?.username ?? "unknown"}</p>
+      <ImageNameEditor
+        initialValue={image.name}
+        imageId={image.id}
+        onNameChanged={(newName) => onNameChanged(image.id, newName)}
+      />
       <img className="ImageDetails-img" src={image.src} alt={image.name} />
     </div>
   );
 }
+
